@@ -6,170 +6,271 @@
         xmlns:local="clr-namespace:Snake"
         mc:Ignorable="d"
         Title="Snake" MinHeight="550" MinWidth="900"
-        Background="DimGray"
-        KeyDown="MoveSnakeEvent">
+        KeyDown="WindowKeyDown">
+    <Window.Style>
+        <Style TargetType="Window">
+            <Setter>
+                <Setter.Property>Background</Setter.Property>
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" ColorInterpolationMode="ScRgbLinearInterpolation">
+                        <GradientStop Color="Tomato" Offset="0"/>
+                        <GradientStop Color="Azure" Offset=".5"/>
+                        <GradientStop Color="Tomato" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Style>
+    <Window.Resources>
+        <ResourceDictionary Source="Styles\DefaultStyles.xaml"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid>
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Grid.Column" Value="0"/>
-                    <Setter Property="Background" Value="Gray"/>
+        <!--Left Panel-->
+        <Border Grid.Column="0">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5"/>
+                    <Setter Property="Background" Value="#aaC0C0C0"/>
                     <Setter Property="Margin" Value="0 10 0 10"/>
                 </Style>
-            </Grid.Style>
-            <TextBlock>
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <EventSetter Event="MouseLeftButtonDown" Handler="Pause"/>
-                        <Setter Property="Text" Value="Pause"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="VerticalAlignment" Value="Top"/>
-                        <Setter Property="FontSize" Value="25"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="Margin" Value="0 50 0 0"/>
-                        <Setter Property="Cursor" Value="Hand"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="LightGray"/>
-                            </Trigger>
-                        </Style.Triggers>
+            </Border.Style>
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" Color="Gray" ShadowDepth="10" Opacity="0.4"/>
+            </Border.Effect>
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="2.5*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Name="_pauseTextBlock" Grid.Row="0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
+                            <EventSetter Event="MouseLeftButtonDown" Handler="Pause"/>
+                            <Setter Property="Text" Value="&#xf04b;"/>
+                            <Setter Property="ToolTip" Value="Start/Pause"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Grid.Row="1">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
+                            <Setter Property="Text" Value="&#xf013;"/>
+                            <Setter Property="ToolTip" Value="Settings"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Grid.Row="2">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
+                            <Setter Property="Text" Value="&#xf4fe;"/>
+                            <Setter Property="ToolTip" Value="Advanced Settings"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Grid.Row="3">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
+                            <EventSetter Event="MouseLeftButtonDown" Handler="Exit"/>
+                            <Setter Property="Text" Value="&#xf2f5;"/>
+                            <Setter Property="ToolTip" Value="Exit"/>
+                            <Setter Property="VerticalAlignment" Value="Bottom"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Border>
+        <!--Center Panel-->
+        <Border Grid.Column="1">
+            <Border.Effect>
+                <DropShadowEffect Color="Gray" ShadowDepth="10" Opacity="0.7" BlurRadius="25"/>
+            </Border.Effect>
+            <Border >
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="10"/>
+                        <Setter Property="BorderBrush" Value="DimGray"/>
+                        <Setter Property="BorderThickness" Value="10"/>
+                        <Setter Property="Height" Value="520"/>
+                        <Setter Property="Width" Value="520"/>
+                        <Setter Property="ClipToBounds" Value="True"/>
                     </Style>
-                </TextBlock.Style>
-            </TextBlock>
-            <TextBlock>
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <EventSetter Event="MouseLeftButtonDown" Handler="Exit"/>
-                        <Setter Property="Text" Value="Exit"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="VerticalAlignment" Value="Top"/>
-                        <Setter Property="FontSize" Value="25"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="Margin" Value="0 100 0 0"/>
-                        <Setter Property="Cursor" Value="Hand"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="LightGray"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-        </Grid>
-        <Canvas Grid.Column="1"
-                Height="500"
-                Width="500"
-                Background="Black"
-                Name="Area">
-        </Canvas>
-        <Grid>
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Grid.Column" Value="1"/>
-                    <Setter Property="MaxHeight" Value="500"/>
-                </Style>
-            </Grid.Style>
-            <TextBlock Name="TitleTextBlock">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Text" Value="Snake"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="VerticalAlignment" Value="Top"/>
-                        <Setter Property="FontSize" Value="50"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="Margin" Value="50"/>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-            <TextBlock Name="StartTextBlock">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <EventSetter Event="MouseLeftButtonDown" Handler="Start"/>
-                        <Setter Property="Text" Value="Press Space to Start"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="VerticalAlignment" Value="Bottom"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="FontSize" Value="25"/>
-                        <Setter Property="Margin" Value="150"/>
-                        <Setter Property="Cursor" Value="Hand"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="DarkGray"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-        </Grid>
-        <Grid>
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Grid.Column" Value="2"/>
-                    <Setter Property="Background" Value="Gray"/>
+                </Border.Style>
+                <Grid>
+                    <Canvas Name="_area"
+                            Height="500"
+                            Width="500"
+                            Background="Black">
+                    </Canvas>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="4*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="MaxHeight" Value="500"/>
+                            </Style>
+                        </Grid.Style>
+                        <TextBlock Name="_titleTextBlock" Grid.Row="0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="Snake"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="VerticalAlignment" Value="Top"/>
+                                    <Setter Property="FontSize" Value="50"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Margin" Value="50"/>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Name="_reasonDiedTextBlock" Grid.Row="1">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="MaxWidth" Value="500"/>
+                                    <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+                                    <Setter Property="TextAlignment" Value="Center"/>
+                                    <Setter Property="FontSize" Value="30"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Visibility" Value="Hidden"/>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Name="_scoreResultTextBlock" Grid.Row="2">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource ButtonHoverColor}"/>
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="FontSize" Value="20"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Visibility" Value="Hidden"/>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Name="_restartTextBlock" Grid.Row="3">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
+                                    <EventSetter Event="MouseLeftButtonDown" Handler="Start"/>
+                                    <Setter Property="Text" Value="&#xf2ea;"/>
+                                    <Setter Property="ToolTip" Value="Restart"/>
+                                    <Setter Property="Visibility" Value="Hidden"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="DarkGray"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                    <TextBlock Name="_startTextBlock">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <EventSetter Event="MouseLeftButtonDown" Handler="Start"/>
+                                <Setter Property="Text" Value="Press Space to Start"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="VerticalAlignment" Value="Bottom"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontSize" Value="25"/>
+                                <Setter Property="Margin" Value="0 0 0 100"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="DarkGray"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+        </Border>
+        </Border>
+        <!--Right Panel-->
+        <Border Grid.Column="2">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5"/>
+                    <Setter Property="Background" Value="#aaC0C0C0"/>
                     <Setter Property="Margin" Value="0 10 0 10"/>
                 </Style>
-            </Grid.Style>
-            <TextBlock>
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Text" Value="Time"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="VerticalAlignment" Value="Top"/>
-                        <Setter Property="FontSize" Value="20"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="Margin" Value="0 30 0 0"/>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-            <TextBlock Name="TimeTextBlock">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Text" Value="00:00"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="VerticalAlignment" Value="Top"/>
-                        <Setter Property="FontSize" Value="25"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="Margin" Value="0 50 0 0"/>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-            <TextBlock>
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Text" Value="Score"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="VerticalAlignment" Value="Top"/>
-                        <Setter Property="FontSize" Value="20"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="Margin" Value="0 100 0 0"/>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-            <TextBlock Name="ScoreTextBlock">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Text" Value="0"/>
-                        <Setter Property="Foreground" Value="White"/>
-                        <Setter Property="HorizontalAlignment" Value="Center"/>
-                        <Setter Property="VerticalAlignment" Value="Top"/>
-                        <Setter Property="FontSize" Value="25"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="Margin" Value="0 120 0 0"/>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-        </Grid>
+            </Border.Style>
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" Color="Gray" ShadowDepth="10" Direction="220" Opacity="0.4"/>
+            </Border.Effect>
+            <Grid Margin="0 20 0 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="5*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="&#xf2f2;"/>
+                            <Setter Property="ToolTip" Value="Timer"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontFamily" Value="{StaticResource FontAwesome}"/>
+                            <Setter Property="FontSize" Value="30"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Name="_timeTextBlock" Grid.Row="1">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="00:00"/>
+                            <Setter Property="ToolTip" Value="Timer"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontSize" Value="30"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Grid.Row="2">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="&#xf005;"/>
+                            <Setter Property="ToolTip" Value="Score"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontFamily" Value="{StaticResource FontAwesome}"/>
+                            <Setter Property="FontSize" Value="30"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Name="_scoreTextBlock" Grid.Row="3">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="0"/>
+                            <Setter Property="ToolTip" Value="Score"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontSize" Value="30"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

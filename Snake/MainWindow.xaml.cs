@@ -30,12 +30,14 @@ namespace Snake
         private DispatcherTimer DispatcherTimer { get; set; } = new DispatcherTimer();
         private int Score { get; set; }
         private DateTime Timer { get; set; }
+        private string TimerToString => (Timer.Minute > 9 ? Timer.Minute.ToString() : "0" + Timer.Minute.ToString()) +
+                ":" + (Timer.Second > 9 ? Timer.Second.ToString() : "0" + Timer.Second.ToString());
 
         public MainWindow()
         {
             InitializeComponent();
 
-            DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);
+            DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
             DispatcherTimer.Tick += MainLoop;
         }
 
@@ -56,7 +58,7 @@ namespace Snake
 
                 Score += 100;
 
-                ScoreTextBlock.Text = Score.ToString();
+                _scoreTextBlock.Text = Score.ToString();
             }
 
             Update();
@@ -70,6 +72,9 @@ namespace Snake
         {
             IsGameStarted = true;
 
+            _scoreTextBlock.Text = "0";
+            _timeTextBlock.Text = "00:00";
+
             HideAreaTextBlocks();
 
             Score = 0;
@@ -77,6 +82,8 @@ namespace Snake
 
             Snake = new SnakeModel();
             Food = new FoodModel();
+
+            _pauseTextBlock.Text = "\uf04c";
 
             Update();
 
@@ -86,25 +93,39 @@ namespace Snake
         {
             IsGameStarted = false;
 
-            Area.Children.Clear();
+            _reasonDiedTextBlock.Text = Snake.ReasonDied;
+            _scoreResultTextBlock.Text = $"Time: {TimerToString}       Score: {Score}";
+
+            _area.Children.Clear();
             DispatcherTimer.Stop();
 
             Snake = new SnakeModel();
             Food = new FoodModel();
 
+            _pauseTextBlock.Text = "\uf04b";
+
+            
+
             ShowAreaTextBlocks();
         }
         private void Pause(object sender, MouseButtonEventArgs e)
         {
+            if (IsGameStarted) Pause();
+            else Start();
+        }
+        private void Pause()
+        {
             if (!IsPaused)
             {
                 DispatcherTimer.Stop();
+                _pauseTextBlock.Text = "\uf04b";
             }
             else
             {
                 DispatcherTimer.Start();
+                _pauseTextBlock.Text = "\uf04c";
             }
-            
+
             IsPaused = !IsPaused;
         }
         private void Exit(object sender, MouseButtonEventArgs e)
@@ -114,20 +135,20 @@ namespace Snake
 
         private void Update()
         {
-            Area.Children.Clear();
+            _area.Children.Clear();
 
             foreach (var square in Snake.GetValue())
             {
-                Area.Children.Add(square);
+                _area.Children.Add(square);
             }
-            Area.Children.Add(Food.AsRectangle);
+            _area.Children.Add(Food.AsRectangle);
 
             Timer = Timer.AddMilliseconds(100);
 
-            TimeTextBlock.Text = Timer.Minute.ToString() + ":" + Timer.Second.ToString();
+            _timeTextBlock.Text = TimerToString;
         }
 
-        private void MoveSnakeEvent(object sender, KeyEventArgs e)
+        private void WindowKeyDown(object sender, KeyEventArgs e)
         {
             if (IsGameStarted && !IsPaused)
             {
@@ -165,28 +186,37 @@ namespace Snake
                         if (Snake.CurrentDirection != SnakeDirections.Left)
                             Snake.CurrentDirection = SnakeDirections.Right;
                         break;
+                    case Key.Space:
+                        Pause();
+                        break;
                 }
 
                 Update();
             }
             else
             {
-                if (e.Key == Key.Space && !IsPaused)
+                if (e.Key == Key.Space)
                 {
-                    Start();
+                    if (!IsGameStarted) Start();
+                    else Pause();   
                 }
             }
         }
 
         private void HideAreaTextBlocks()
         {
-            StartTextBlock.Visibility = Visibility.Hidden;
-            TitleTextBlock.Visibility = Visibility.Hidden;
+            _startTextBlock.Visibility = Visibility.Hidden;
+            _titleTextBlock.Visibility = Visibility.Hidden;
+            _restartTextBlock.Visibility = Visibility.Hidden;
+            _scoreResultTextBlock.Visibility = Visibility.Hidden;
+            _reasonDiedTextBlock.Visibility = Visibility.Hidden;
         }
         private void ShowAreaTextBlocks()
         {
-            StartTextBlock.Visibility = Visibility.Visible;
-            TitleTextBlock.Visibility = Visibility.Visible;
+            _titleTextBlock.Visibility = Visibility.Visible;
+            _restartTextBlock.Visibility = Visibility.Visible;
+            _scoreResultTextBlock.Visibility = Visibility.Visible;
+            _reasonDiedTextBlock.Visibility = Visibility.Visible;
         }
     }
 }

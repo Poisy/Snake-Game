@@ -66,39 +66,8 @@ namespace Snake.Models
 
             public void UpdatePosition(Point position)
             {
-                // Tried to do it with animation but it didn't work
-
-                //Storyboard storyboard = new Storyboard();
-
-                //DoubleAnimation animationX = new DoubleAnimation();
-                //DoubleAnimation animationY = new DoubleAnimation();
-
-                //animationX.From = position.X;
-                //animationY.From = position.Y;
-
                 currentPosition.X += position.X;
                 currentPosition.Y += position.Y;
-
-                //animationX.To = currentPosition.X;
-                //animationY.To = currentPosition.Y;
-                //animationX.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 100));
-                //animationY.Duration = new Duration(new TimeSpan(0, 0, 0, 0, 100));
-
-                //Storyboard.SetTarget(animationX, AsRectangle);
-                //Storyboard.SetTargetProperty(animationX, new PropertyPath(TranslateTransform.XProperty));
-
-                //Storyboard.SetTarget(animationY, AsRectangle);
-                //Storyboard.SetTargetProperty(animationY, new PropertyPath(TranslateTransform.XProperty));
-
-                //storyboard.Children.Add(animationX);
-                //storyboard.Children.Add(animationY);
-
-
-
-                //storyboard.Begin();
-
-                //AsRectangle.BeginStoryboard(storyboard);
-                //AsRectangle.BeginAnimation(TranslateTransform.XProperty, animationX);
 
                 AsRectangle.RenderTransform = new TranslateTransform(currentPosition.X, currentPosition.Y);
             }
@@ -112,26 +81,33 @@ namespace Snake.Models
         public double BodyPartSize { get; set; }
         public int CountBodyParts { get { return BodyParts.Count; } }
         public bool IsAlive { get; set; } = true;
+        public Brush HeadColor { get; private set; }
+        public Brush BodyColor { get; private set; }
+        public string ReasonDied { get; private set; } = "Error";
 
-        public SnakeModel() : this(300, 300, 20) { }
-        public SnakeModel(int startPositionX, int startPositionY, double bodyPartSize)
+        public SnakeModel() : this(300, 300, 20, Brushes.White, Brushes.White) { }
+        public SnakeModel(Brush bodyColor, Brush headColor) : this(300, 300, 20, bodyColor, headColor) { }
+        public SnakeModel(int startPositionX, int startPositionY, double bodyPartSize, Brush bodyColor, Brush headColor)
         {
             StartPositionX = startPositionX;
             StartPositionY = startPositionY;
             BodyPartSize = bodyPartSize;
+
+            HeadColor = headColor;
+            BodyColor = bodyColor;
 
             CreateBody();
         }
 
         private void CreateBody()
         {
-            BodyPart tail = CreateBodyPart(StartPositionX - Convert.ToInt32(BodyPartSize) * 2, StartPositionY, BodyPartSize);
-            BodyPart body = CreateBodyPart(StartPositionX - Convert.ToInt32(BodyPartSize), StartPositionY, BodyPartSize);
-            BodyPart head = CreateBodyPart(StartPositionX, StartPositionY, BodyPartSize);
+            BodyPart head = CreateBodyPart(StartPositionX - Convert.ToInt32(BodyPartSize) * 2, StartPositionY, BodyPartSize, HeadColor);
+            BodyPart body = CreateBodyPart(StartPositionX - Convert.ToInt32(BodyPartSize), StartPositionY, BodyPartSize, BodyColor);
+            BodyPart tail = CreateBodyPart(StartPositionX, StartPositionY, BodyPartSize, BodyColor);
 
-            BodyParts.Add(tail);
-            BodyParts.Add(body);
             BodyParts.Add(head);
+            BodyParts.Add(body);
+            BodyParts.Add(tail);
 
             Directions.AddFirst(SnakeDirections.Left);
             Directions.AddFirst(SnakeDirections.Left);
@@ -190,6 +166,7 @@ namespace Snake.Models
             if (bodyPart.CurrentPosition.Y < BodyPartSize) 
             {
                 IsAlive = false;
+                ReasonDied = DyingReasons.HitTheWall;
             }
 
             bodyPart.UpdatePosition(new Point(0, -BodyPartSize));
@@ -199,6 +176,7 @@ namespace Snake.Models
             if (bodyPart.CurrentPosition.Y + BodyPartSize >= 500)
             {
                 IsAlive = false;
+                ReasonDied = DyingReasons.HitTheWall;
             }
 
             bodyPart.UpdatePosition(new Point(0, BodyPartSize));
@@ -208,6 +186,7 @@ namespace Snake.Models
             if (bodyPart.CurrentPosition.X < BodyPartSize)
             {
                 IsAlive = false;
+                ReasonDied = DyingReasons.HitTheWall;
             }
 
             bodyPart.UpdatePosition(new Point(-BodyPartSize, 0));
@@ -217,18 +196,19 @@ namespace Snake.Models
             if (bodyPart.CurrentPosition.X + BodyPartSize >= 500)
             {
                 IsAlive = false;
+                ReasonDied = DyingReasons.HitTheWall;
             }
 
             bodyPart.UpdatePosition(new Point(BodyPartSize, 0));
         }
 
-        private BodyPart CreateBodyPart(int x, int y, double size)
+        private BodyPart CreateBodyPart(int x, int y, double size, Brush color)
         {
             BodyPart bodyPart = new BodyPart();
 
             bodyPart.Size = size;
             bodyPart.StartPosition = new Point(x, y);
-            bodyPart.Color = Brushes.White;
+            bodyPart.Color = color;
 
             return bodyPart;
         }
@@ -236,7 +216,9 @@ namespace Snake.Models
         {
             BodyPart newPart = new BodyPart();
 
-            newPart.Color = Brushes.White;
+            BodyParts[0].Color = BodyColor;
+
+            newPart.Color = HeadColor;
             newPart.Size = BodyPartSize;
 
             switch (CurrentDirection)
@@ -277,6 +259,7 @@ namespace Snake.Models
             if (BodyParts[0].CurrentPosition == part.CurrentPosition)
             {
                 IsAlive = false;
+                ReasonDied = DyingReasons.BiteYourSelf;
             }
         }
     }

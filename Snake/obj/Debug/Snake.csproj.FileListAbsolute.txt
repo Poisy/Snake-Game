@@ -13,3 +13,5 @@ C:\Users\atana\source\repos\Snake\Snake\obj\Debug\Snake.csproj.GenerateResource.
 C:\Users\atana\source\repos\Snake\Snake\obj\Debug\Snake.csproj.CoreCompileInputs.cache
 C:\Users\atana\source\repos\Snake\Snake\obj\Debug\Snake.exe
 C:\Users\atana\source\repos\Snake\Snake\obj\Debug\Snake.pdb
+C:\Users\atana\source\repos\Snake\Snake\obj\Debug\App.baml
+C:\Users\atana\source\repos\Snake\Snake\obj\Debug\Styles\DefaultStyles.baml
