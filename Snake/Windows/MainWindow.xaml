@@ -22,7 +22,7 @@
         </Style>
     </Window.Style>
     <Window.Resources>
-        <ResourceDictionary Source="Styles\DefaultStyles.xaml"/>
+        <ResourceDictionary Source="..\Styles\DefaultStyles.xaml"/>
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -69,8 +69,9 @@
                 <TextBlock Grid.Row="2">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
+                            <EventSetter Event="MouseLeftButtonDown" Handler="OpenDeveloperWindow"/>
                             <Setter Property="Text" Value="&#xf4fe;"/>
-                            <Setter Property="ToolTip" Value="Advanced Settings"/>
+                            <Setter Property="ToolTip" Value="Developer Settings"/>
                             <Setter Property="Foreground" Value="White"/>
                         </Style>
                     </TextBlock.Style>

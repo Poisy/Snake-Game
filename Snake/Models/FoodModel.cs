@@ -15,6 +15,7 @@ namespace Snake.Data
         public int Size { get; set; }
         public Point Position { get; set; }
         public Rectangle AsRectangle { get; set; }
+        private static Random Random { get; set; } = new Random();
 
         public FoodModel() : this(20) { }
         public FoodModel(int size)
@@ -28,13 +29,11 @@ namespace Snake.Data
         {
             AsRectangle = new Rectangle();
 
-            Random random = new Random();
-
-            AsRectangle.Fill = Brushes.Red;
+            AsRectangle.Fill = Settings.FoodColor;
             AsRectangle.Width = Size;
             AsRectangle.Height = Size;
 
-            Position = new Point(random.Next(0, 500 / Size) * Size, random.Next(0, 500 / Size) * Size);
+            Position = new Point(Random.Next(0, 500 / Size) * Size, Random.Next(0, 500 / Size) * Size);
 
             Canvas.SetLeft(AsRectangle, Position.X);
             Canvas.SetTop(AsRectangle, Position.Y);

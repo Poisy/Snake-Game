@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Snake"
-             StartupUri="MainWindow.xaml">
+             StartupUri="Windows\MainWindow.xaml">
     <Application.Resources>
         <FontFamily x:Key="FontAwesome">/Snake;component/Data/Fonts/Font Awesome 5 Free-Solid-900.otf#Font Awesome 5 Free Solid</FontFamily>
     </Application.Resources>

@@ -1,5 +1,4 @@
-﻿using Snake.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Snake.Data;
+using Snake.Models;
+using Snake.Windows;
 
 namespace Snake
 {
@@ -23,11 +24,11 @@ namespace Snake
     /// </summary>
     public partial class MainWindow : Window
     {
-        private SnakeModel Snake { get; set; }
-        private FoodModel Food { get; set; }
+        public SnakeModel Snake { get; set; }
+        public List<FoodModel> Food { get; set; } = new List<FoodModel>();
         private bool IsGameStarted { get; set; } = false;
         private bool IsPaused { get; set; } = false;
-        private DispatcherTimer DispatcherTimer { get; set; } = new DispatcherTimer();
+        public DispatcherTimer DispatcherTimer { get; set; } = new DispatcherTimer();
         private int Score { get; set; }
         private DateTime Timer { get; set; }
         private string TimerToString => (Timer.Minute > 9 ? Timer.Minute.ToString() : "0" + Timer.Minute.ToString()) +
@@ -37,7 +38,6 @@ namespace Snake
         {
             InitializeComponent();
 
-            DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
             DispatcherTimer.Tick += MainLoop;
         }
 
@@ -51,15 +51,26 @@ namespace Snake
                 return;
             }
 
-            if (Snake.TryToEat(Food))
+            foreach(var food in Food)
             {
-                Snake.ExtendBody();
-                Food.NewPosition();
+                if (Snake.TryToEat(food))
+                {
+                    Snake.ExtendBody();
+                    food.NewPosition();
 
-                Score += 100;
+                    Score += 100;
 
-                _scoreTextBlock.Text = Score.ToString();
+                    _scoreTextBlock.Text = Score.ToString();
+
+                    for (int i = 0; i < Settings.FoodSpawnRate - 1; i++)
+                    {
+                        Food.Add(new FoodModel());
+                    }
+
+                    break;
+                }
             }
+            
 
             Update();
         }
@@ -72,16 +83,23 @@ namespace Snake
         {
             IsGameStarted = true;
 
+            DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Speed);
+
             _scoreTextBlock.Text = "0";
             _timeTextBlock.Text = "00:00";
+            _area.Background = Settings.Background;
 
             HideAreaTextBlocks();
 
             Score = 0;
             Timer = new DateTime();
 
-            Snake = new SnakeModel();
-            Food = new FoodModel();
+            Snake = new SnakeModel(Settings.BodyColor, Settings.HeadColor);
+
+            for (int i = Settings.FoodSpawnCount; i > 0; i--)
+            {
+                Food.Add(new FoodModel());
+            }
 
             _pauseTextBlock.Text = "\uf04c";
 
@@ -100,7 +118,7 @@ namespace Snake
             DispatcherTimer.Stop();
 
             Snake = new SnakeModel();
-            Food = new FoodModel();
+            Food = new List<FoodModel>();
 
             _pauseTextBlock.Text = "\uf04b";
 
@@ -141,7 +159,12 @@ namespace Snake
             {
                 _area.Children.Add(square);
             }
-            _area.Children.Add(Food.AsRectangle);
+
+            foreach (var food in Food)
+            {
+                _area.Children.Add(food.AsRectangle);
+            }
+
 
             Timer = Timer.AddMilliseconds(100);
 
@@ -217,6 +240,11 @@ namespace Snake
             _restartTextBlock.Visibility = Visibility.Visible;
             _scoreResultTextBlock.Visibility = Visibility.Visible;
             _reasonDiedTextBlock.Visibility = Visibility.Visible;
+        }
+
+        private void OpenDeveloperWindow(object sender, MouseButtonEventArgs e)
+        {
+            if (IsPaused || !IsGameStarted) new DeveloperWindow().Show();
         }
     }
 }
