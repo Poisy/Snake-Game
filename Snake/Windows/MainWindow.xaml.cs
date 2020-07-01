@@ -26,6 +26,7 @@ namespace Snake
     {
         public SnakeModel Snake { get; set; }
         public List<FoodModel> Food { get; set; } = new List<FoodModel>();
+        public List<ObstacleModel> Obstacles { get; set; } = new List<ObstacleModel>();
         private bool IsGameStarted { get; set; } = false;
         private bool IsPaused { get; set; } = false;
         public DispatcherTimer DispatcherTimer { get; set; } = new DispatcherTimer();
@@ -33,6 +34,7 @@ namespace Snake
         private DateTime Timer { get; set; }
         private string TimerToString => (Timer.Minute > 9 ? Timer.Minute.ToString() : "0" + Timer.Minute.ToString()) +
                 ":" + (Timer.Second > 9 ? Timer.Second.ToString() : "0" + Timer.Second.ToString());
+        public static bool CanShowWalls { get; set; } = false;
 
         public MainWindow()
         {
@@ -45,6 +47,14 @@ namespace Snake
         {
             Snake.Move();
 
+            if (CanShowWalls)
+            {
+                foreach (var obstacle in Obstacles)
+                {
+                    Snake.DidHitAWall(obstacle.AsRectangle);
+                }
+            }
+
             if (!Snake.IsAlive)
             {
                 Stop();
@@ -53,10 +63,10 @@ namespace Snake
 
             foreach(var food in Food)
             {
-                if (Snake.TryToEat(food))
+                if (Snake.TryToEat(food.AsRectangle))
                 {
                     Snake.ExtendBody();
-                    food.NewPosition();
+                    food.NewPosition(Snake);
 
                     Score += 100;
 
@@ -64,7 +74,10 @@ namespace Snake
 
                     for (int i = 0; i < Settings.FoodSpawnRate - 1; i++)
                     {
-                        Food.Add(new FoodModel());
+                        FoodModel newFood = new FoodModel();
+                        newFood.NewPosition(Snake);
+
+                        Food.Add(newFood);
                     }
 
                     break;
@@ -77,7 +90,8 @@ namespace Snake
 
         private void Start(object sender, MouseButtonEventArgs e)
         {
-            Start();
+            if (IsGameStarted) Restart();
+            else Start();
         }
         private void Start()
         {
@@ -96,9 +110,37 @@ namespace Snake
 
             Snake = new SnakeModel(Settings.BodyColor, Settings.HeadColor);
 
+            switch (Settings.Difficulty)
+            {
+                case Difficulties.Easy:
+                    Snake.CanTeleport = true;
+                    CanShowWalls = false;
+                    break;
+                case Difficulties.Normal:
+                    Snake.CanTeleport = false;
+                    CanShowWalls = false;
+                    break;
+                case Difficulties.Hard:
+                    Snake.CanTeleport = false;
+                    CanShowWalls = true;
+                    CreateWalls();
+                    FoodModel.Walls = Obstacles;
+                    break;
+                case Difficulties.Python:
+                    Snake.CanTeleport = false;
+                    CanShowWalls = true;
+                    CreateWalls();
+                    FoodModel.Walls = Obstacles;
+                    Snake.Starve = 60;
+                    break;
+            }
+
             for (int i = Settings.FoodSpawnCount; i > 0; i--)
             {
-                Food.Add(new FoodModel());
+                FoodModel food = new FoodModel();
+                food.NewPosition(Snake);
+
+                Food.Add(food);
             }
 
             _pauseTextBlock.Text = "\uf04c";
@@ -122,9 +164,25 @@ namespace Snake
 
             _pauseTextBlock.Text = "\uf04b";
 
-            
-
             ShowAreaTextBlocks();
+        }
+        private void Restart()
+        {
+            IsGameStarted = false;
+
+            _area.Children.Clear();
+            DispatcherTimer.Stop();
+
+            Snake = new SnakeModel();
+            Food = new List<FoodModel>();
+
+            _pauseTextBlock.Text = "\uf04b";
+
+            _pauseTextTextBlock.Visibility = Visibility.Hidden;
+            _restartTextBlock.Visibility = Visibility.Hidden;
+            IsPaused = !IsPaused;
+
+            Start();
         }
         private void Pause(object sender, MouseButtonEventArgs e)
         {
@@ -137,11 +195,15 @@ namespace Snake
             {
                 DispatcherTimer.Stop();
                 _pauseTextBlock.Text = "\uf04b";
+                _pauseTextTextBlock.Visibility = Visibility.Visible;
+                _restartTextBlock.Visibility = Visibility.Visible;
             }
             else
             {
                 DispatcherTimer.Start();
                 _pauseTextBlock.Text = "\uf04c";
+                _pauseTextTextBlock.Visibility = Visibility.Hidden;
+                _restartTextBlock.Visibility = Visibility.Hidden;
             }
 
             IsPaused = !IsPaused;
@@ -153,7 +215,20 @@ namespace Snake
 
         private void Update()
         {
+            if (Settings.Difficulty == Difficulties.Python)
+            {
+                _area.Opacity = Snake.Starve / 0.6 / 100;
+            }
+
             _area.Children.Clear();
+
+            if (CanShowWalls)
+            {
+                foreach (var obstacle in Obstacles)
+                {
+                    _area.Children.Add(obstacle.AsRectangle);
+                }
+            }
 
             foreach (var square in Snake.GetValue())
             {
@@ -166,9 +241,18 @@ namespace Snake
             }
 
 
-            Timer = Timer.AddMilliseconds(100);
+            Timer = Timer.AddMilliseconds(Settings.Speed);
 
             _timeTextBlock.Text = TimerToString;
+        }
+
+        private void CreateWalls()
+        {
+            ObstacleModel obstacle1 = new ObstacleModel(100, 100, new Point(200, 100));
+            ObstacleModel obstacle2 = new ObstacleModel(100, 100, new Point(200, 300));
+
+            Obstacles.Add(obstacle1);
+            Obstacles.Add(obstacle2);
         }
 
         private void WindowKeyDown(object sender, KeyEventArgs e)
@@ -246,5 +330,10 @@ namespace Snake
         {
             if (IsPaused || !IsGameStarted) new DeveloperWindow().Show();
         }
+        private void OpenSettingsWindow(object sender, MouseButtonEventArgs e)
+        {
+            if (IsPaused || !IsGameStarted) new SettingsWindow().Show();
+        }
+
     }
 }

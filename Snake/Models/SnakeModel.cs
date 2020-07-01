@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using Snake.Data;
 using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Controls;
-using System.Windows.Media.Animation;
 
 namespace Snake.Models
 {
@@ -76,21 +72,36 @@ namespace Snake.Models
         private LinkedList<SnakeDirections> Directions { get; set; } = new LinkedList<SnakeDirections>();
         private List<BodyPart> BodyParts { get; set; } = new List<BodyPart>();
         public SnakeDirections CurrentDirection { get; set; }
-        public int StartPositionX { get; set; }
-        public int StartPositionY { get; set; }
+        public int AreaWidth { get; set; }
+        public int AreaHight { get; set; }
         public double BodyPartSize { get; set; }
         public int CountBodyParts { get { return BodyParts.Count; } }
         public bool IsAlive { get; set; } = true;
         public Brush HeadColor { get; private set; }
         public Brush BodyColor { get; private set; }
         public string ReasonDied { get; private set; } = "Error";
-
-        public SnakeModel() : this(300, 300, 20, Brushes.White, Brushes.White) { }
-        public SnakeModel(Brush bodyColor, Brush headColor) : this(300, 300, 20, bodyColor, headColor) { }
-        public SnakeModel(int startPositionX, int startPositionY, double bodyPartSize, Brush bodyColor, Brush headColor)
+        public bool CanTeleport { get; set; } = true;
+        public short Starve
         {
-            StartPositionX = startPositionX;
-            StartPositionY = startPositionY;
+            get
+            {
+                return starve;
+            }
+            set
+            {
+                if (starve + value > 60) starve = 60;
+                else starve += value;
+            }
+        }
+
+        private short starve;
+
+        public SnakeModel() : this(500, 500, 20, Brushes.White, Brushes.White) { }
+        public SnakeModel(Brush bodyColor, Brush headColor) : this(500, 500, 20, bodyColor, headColor) { }
+        public SnakeModel(int areaWidth, int areaHeight, double bodyPartSize, Brush bodyColor, Brush headColor)
+        {
+            AreaWidth = areaWidth;
+            AreaHight = areaHeight;
             BodyPartSize = bodyPartSize;
 
             HeadColor = headColor;
@@ -101,9 +112,9 @@ namespace Snake.Models
 
         private void CreateBody()
         {
-            BodyPart head = CreateBodyPart(StartPositionX - Convert.ToInt32(BodyPartSize) * 2, StartPositionY, BodyPartSize, HeadColor);
-            BodyPart body = CreateBodyPart(StartPositionX - Convert.ToInt32(BodyPartSize), StartPositionY, BodyPartSize, BodyColor);
-            BodyPart tail = CreateBodyPart(StartPositionX, StartPositionY, BodyPartSize, BodyColor);
+            BodyPart head = CreateBodyPart(AreaWidth/2+(int)(AreaWidth/2%BodyPartSize) - Convert.ToInt32(BodyPartSize) * 2, AreaWidth / 2 + (int)(AreaWidth/2 % BodyPartSize), BodyPartSize, HeadColor);
+            BodyPart body = CreateBodyPart(AreaWidth/2 + (int)(AreaWidth/2 % BodyPartSize) - Convert.ToInt32(BodyPartSize), AreaWidth / 2 + (int)(AreaWidth/2 % BodyPartSize), BodyPartSize, BodyColor);
+            BodyPart tail = CreateBodyPart(AreaWidth/2 + (int)(AreaWidth/2 % BodyPartSize), AreaWidth / 2 + (int)(AreaWidth/2 % BodyPartSize), BodyPartSize, BodyColor);
 
             BodyParts.Add(head);
             BodyParts.Add(body);
@@ -130,6 +141,19 @@ namespace Snake.Models
 
         public void Move()
         {
+            if (Settings.Difficulty == Difficulties.Python)
+            {
+                if (Starve <= 0)
+                {
+                    IsAlive = false;
+                    ReasonDied = DyingReasons.Starving;
+
+                    return;
+                }
+
+                Starve = -1;
+            }
+
             Directions.RemoveLast();
 
             Directions.AddFirst(CurrentDirection);
@@ -165,6 +189,12 @@ namespace Snake.Models
         {
             if (bodyPart.CurrentPosition.Y < BodyPartSize) 
             {
+                if (CanTeleport)
+                {
+                    bodyPart.UpdatePosition(new Point(0, AreaHight - BodyPartSize));
+                    return;
+                }
+
                 IsAlive = false;
                 ReasonDied = DyingReasons.HitTheWall;
             }
@@ -173,8 +203,14 @@ namespace Snake.Models
         }
         private void MoveDown(BodyPart bodyPart)
         {
-            if (bodyPart.CurrentPosition.Y + BodyPartSize >= 500)
+            if (bodyPart.CurrentPosition.Y + BodyPartSize >= AreaHight)
             {
+                if (CanTeleport)
+                {
+                    bodyPart.UpdatePosition(new Point(0, -(AreaHight - BodyPartSize)));
+                    return;
+                }
+
                 IsAlive = false;
                 ReasonDied = DyingReasons.HitTheWall;
             }
@@ -185,6 +221,12 @@ namespace Snake.Models
         {
             if (bodyPart.CurrentPosition.X < BodyPartSize)
             {
+                if (CanTeleport)
+                {
+                    bodyPart.UpdatePosition(new Point(AreaHight - BodyPartSize, 0));
+                    return;
+                }
+
                 IsAlive = false;
                 ReasonDied = DyingReasons.HitTheWall;
             }
@@ -193,8 +235,14 @@ namespace Snake.Models
         }
         private void MoveRight(BodyPart bodyPart)
         {
-            if (bodyPart.CurrentPosition.X + BodyPartSize >= 500)
+            if (bodyPart.CurrentPosition.X + BodyPartSize >= AreaWidth)
             {
+                if (CanTeleport)
+                {
+                    bodyPart.UpdatePosition(new Point(-(AreaHight - BodyPartSize), 0));
+                    return;
+                }
+
                 IsAlive = false;
                 ReasonDied = DyingReasons.HitTheWall;
             }
@@ -249,11 +297,35 @@ namespace Snake.Models
             Directions.AddFirst(CurrentDirection);
         }
 
-        public bool TryToEat(FoodModel food)
+        public bool TryToEat(Rectangle rect)
         {
-            return food.Position == BodyParts[0].CurrentPosition;
+            Point rectP = new Point(Canvas.GetLeft(rect), Canvas.GetTop(rect));
+            Point headP = BodyParts[0].CurrentPosition;
+
+            if (rectP.X == headP.X && rectP.Y == headP.Y)
+            {
+                Starve = 60;
+
+                return true;
+            }
+
+            return false;
         }
 
+        public void DidHitAWall(Rectangle rect)
+        {
+            Point rectP = new Point(Canvas.GetLeft(rect), Canvas.GetTop(rect));
+            Point headP = BodyParts[0].CurrentPosition;
+
+            if (headP.X >= rectP.X && headP.X < rectP.X + rect.Width)
+            {
+                if (headP.Y >= rectP.Y && headP.Y < rectP.Y + rect.Height)
+                {
+                    IsAlive = false;
+                    ReasonDied = DyingReasons.HitTheWall;
+                }
+            }
+        }
         private void DidBiteItSelf(BodyPart part)
         {
             if (BodyParts[0].CurrentPosition == part.CurrentPosition)

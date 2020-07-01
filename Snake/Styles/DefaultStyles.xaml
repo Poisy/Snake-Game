@@ -168,4 +168,35 @@
         </Setter>
     </Style>
 
+    <!--Default Window Style-->
+    <Style x:Key="WindowStyle" TargetType="Window">
+        <Setter Property="MinWidth" Value="900"/>
+        <Setter Property="MinHeight" Value="500"/>
+        <Setter>
+            <Setter.Property>Background</Setter.Property>
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" ColorInterpolationMode="ScRgbLinearInterpolation">
+                    <GradientStop Color="Tomato" Offset="0"/>
+                    <GradientStop Color="Azure" Offset="0.25"/>
+                    <GradientStop Color="Azure" Offset=".5"/>
+                    <GradientStop Color="Azure" Offset="0.75"/>
+                    <GradientStop Color="Tomato" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--Header TextBlock For Windows-->
+    <Style x:Key="HeaderTextBlockStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="50"/>
+        <Setter Property="Foreground" Value="Tomato"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="10" Opacity="0.3"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
 </ResourceDictionary>

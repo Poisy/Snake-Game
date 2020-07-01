@@ -11,6 +11,8 @@ namespace Snake.Data
     {
         public static bool IsDevModeOn { get; set; } = false;
 
+        public static Difficulties Difficulty { get; set; } = Difficulties.Normal;
+
         public static short Speed
         {
             get

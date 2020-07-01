@@ -30,5 +30,17 @@ namespace Snake.Data
                 return responds[new Random().Next(0, responds.Length - 1)];
             }
         }
+
+        public static string Starving
+        {
+            get
+            {
+                string[] responds = { "Starved to death",
+                    "Died from starving",
+                    "Not enough food",
+                    "Eat a snickers"};
+                return responds[new Random().Next(0, responds.Length - 1)];
+            }
+        }
     }
 }

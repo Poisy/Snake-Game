@@ -6,29 +6,17 @@
         xmlns:local="clr-namespace:Snake.Windows"
         xmlns:wpfTool="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         mc:Ignorable="d"
-        Title="Developer Window" MinHeight="500" MinWidth="900">
-    <Window.Style>
-        <Style TargetType="Window">
-            <Setter>
-                <Setter.Property>Background</Setter.Property>
-                <Setter.Value>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" ColorInterpolationMode="ScRgbLinearInterpolation">
-                        <GradientStop Color="Tomato" Offset="0"/>
-                        <GradientStop Color="Azure" Offset="0.25"/>
-                        <GradientStop Color="Azure" Offset=".5"/>
-                        <GradientStop Color="Azure" Offset="0.75"/>
-                        <GradientStop Color="Tomato" Offset="1"/>
-                    </LinearGradientBrush>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Style>
+        Title="Developer Window" KeyDown="WindowKeyDown">
     <Window.Resources>
         <ResourceDictionary Source="..\Styles\DefaultStyles.xaml"/>
     </Window.Resources>
+    <Window.Style>
+        <Style TargetType="Window" BasedOn="{StaticResource WindowStyle}"/>
+    </Window.Style>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="4*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="3*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -36,8 +24,9 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        <TextBlock Text="Developer Settings" Style="{StaticResource HeaderTextBlockStyle}" Grid.ColumnSpan="3" Grid.Row="0"/>
         <!--Snake Options-->
-        <Expander Name="_snakeOptions" Grid.Column="0" Grid.Row="0">
+        <Expander Name="_snakeOptions" Grid.Column="0" Grid.Row="1">
             <Expander.Style>
                 <Style TargetType="Expander" BasedOn="{StaticResource ExpanderStyle}">
                     <Setter>
@@ -84,7 +73,7 @@
             </StackPanel>
         </Expander>
         <!--Game Options-->
-        <Expander Name="_gameOptions" Grid.Column="1" Grid.Row="0">
+        <Expander Name="_gameOptions" Grid.Column="1" Grid.Row="1">
             <Expander.Style>
                 <Style TargetType="Expander" BasedOn="{StaticResource ExpanderStyle}">
                     <Setter>
@@ -104,7 +93,7 @@
             </StackPanel>
         </Expander>
         <!--Food Options-->
-        <Expander Name="_foodOptions" Grid.Column="2" Grid.Row="0">
+        <Expander Name="_foodOptions" Grid.Column="2" Grid.Row="1">
             <Expander.Style>
                 <Style TargetType="Expander" BasedOn="{StaticResource ExpanderStyle}">
                     <Setter>
@@ -165,7 +154,7 @@
             </StackPanel>
         </Expander>
 
-        <StackPanel Grid.ColumnSpan="3" Grid.Row="1" Orientation="Vertical">
+        <StackPanel Grid.ColumnSpan="3" Grid.Row="2" Orientation="Vertical">
             <TextBlock Style="{StaticResource DevOptionTextBlockStyle}" Text="Enable Developer Options" 
                        HorizontalAlignment="Center" Margin="0 0 0 20"/>
             <CheckBox Name="_devCheckBox" Style="{StaticResource ToggleButtonStyle}" Height="35" Width="75"

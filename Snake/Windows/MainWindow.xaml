@@ -27,8 +27,8 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="4*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="6*"/>
+            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <!--Left Panel-->
         <Border Grid.Column="0">
@@ -61,6 +61,7 @@
                 <TextBlock Grid.Row="1">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
+                            <EventSetter Event="MouseLeftButtonDown" Handler="OpenSettingsWindow"/>
                             <Setter Property="Text" Value="&#xf013;"/>
                             <Setter Property="ToolTip" Value="Settings"/>
                         </Style>
@@ -112,7 +113,8 @@
                     </Canvas>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="4*"/>
+                            <RowDefinition Height="3*"/>
+                            <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
@@ -131,11 +133,24 @@
                                     <Setter Property="VerticalAlignment" Value="Top"/>
                                     <Setter Property="FontSize" Value="50"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
-                                    <Setter Property="Margin" Value="50"/>
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Name="_reasonDiedTextBlock" Grid.Row="1">
+                        <TextBlock Name="_pauseTextTextBlock" Grid.Row="1">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="Pause"/>
+                                    <Setter Property="Foreground" Value="Tomato"/>
+                                    <Setter Property="Opacity" Value="0.7"/>
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="FontSize" Value="40"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Visibility" Value="Hidden"/>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Name="_reasonDiedTextBlock" Grid.Row="2">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="White"/>
@@ -150,7 +165,7 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Name="_scoreResultTextBlock" Grid.Row="2">
+                        <TextBlock Name="_scoreResultTextBlock" Grid.Row="3">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="{StaticResource ButtonHoverColor}"/>
@@ -162,7 +177,7 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Name="_restartTextBlock" Grid.Row="3">
+                        <TextBlock Name="_restartTextBlock" Grid.Row="4">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
                                     <EventSetter Event="MouseLeftButtonDown" Handler="Start"/>

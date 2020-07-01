@@ -88,6 +88,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Windows\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="Windows\DeveloperWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -100,9 +103,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Data\Difficulties.cs" />
     <Compile Include="Data\DyingReasons.cs" />
     <Compile Include="Data\Settings.cs" />
     <Compile Include="Data\SnakeDirections.cs" />
+    <Compile Include="Models\ObstacleModel.cs" />
     <Compile Include="Windows\DeveloperWindow.xaml.cs">
       <DependentUpon>DeveloperWindow.xaml</DependentUpon>
     </Compile>
@@ -111,6 +116,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Styles\DefaultStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
