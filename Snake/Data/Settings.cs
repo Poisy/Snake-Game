@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Ink;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 
 namespace Snake.Data
 {
@@ -36,10 +30,13 @@ namespace Snake.Data
         {
             get
             {
-                if (IsDevModeOn) return speed;
-                return 100;
+                if (IsDevModeOn) return devSpeed;
+                return speed;
             }
-            set { speed = value; }
+            set
+            {
+                devSpeed = speed = value;
+            }
         }
         public static Brush HeadColor 
         {
@@ -92,18 +89,24 @@ namespace Snake.Data
         {
             get
             {
-                if (IsDevModeOn) return foodColor;
-                return Brushes.Red;
+                if (IsDevModeOn) return devFoodColor;
+                return foodColor;
             }
-            set { foodColor = value; }
+            set
+            {
+                if (IsDevModeOn) devFoodColor = value;
+                foodColor = value;
+            }
         }
 
         private static short speed  = 100;
+        private static short devSpeed = 100;
         private static Brush headColor = Brushes.White;
         private static Brush bodyColor = Brushes.White;
         private static Brush background = Brushes.Black;
         private static byte foodSpawnRate = 1;
         private static byte foodSpawnCount = 1;
+        private static Brush devFoodColor = Brushes.Red;
         private static Brush foodColor = Brushes.Red;
     }
 }

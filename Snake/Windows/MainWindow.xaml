@@ -47,6 +47,7 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="2.5*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Name="_pauseTextBlock" Grid.Row="0">
@@ -78,6 +79,16 @@
                     </TextBlock.Style>
                 </TextBlock>
                 <TextBlock Grid.Row="3">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
+                            <EventSetter Event="MouseLeftButtonDown" Handler="OpenInformationWindow"/>
+                            <Setter Property="Text" Value="&#xf05a;"/>
+                            <Setter Property="ToolTip" Value="Info"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Grid.Row="4">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource ButtonStyle}">
                             <EventSetter Event="MouseLeftButtonDown" Handler="Exit"/>

@@ -33,10 +33,19 @@ namespace Snake
         private bool IsPaused { get; set; } = false;
         private List<RecordModel> Records { get; set; } = FileManager.ReadFromRecords();
         private bool DidAlreadySnakeMoved { get; set; }
-        private int Score { get; set; }
+        private int Score
+        {
+            get { return score; }
+            set { score += (100 + 50 * (int)Settings.Difficulty)*value; }
+        }
+        private byte ScoreMultiplier { get; set; } = 1;
         private DateTime Timer { get; set; }
         private string TimerToString => (Timer.Minute > 9 ? Timer.Minute.ToString() : "0" + Timer.Minute.ToString()) +
                 ":" + (Timer.Second > 9 ? Timer.Second.ToString() : "0" + Timer.Second.ToString());
+        private short DoubleScoreEffectTimer { get; set; } = -1;
+        private short FastMoveEffectTimer { get; set; } = -1;
+        private short SlowMoveEffectTimer { get; set; } = -1;
+        private int score = 0;
 
         public MainWindow()
         {
@@ -49,6 +58,8 @@ namespace Snake
 
         private void MainLoop(object sender, EventArgs e)
         {
+            CheckEffects();
+
             DidAlreadySnakeMoved = false;
 
             Snake.Move();
@@ -72,9 +83,25 @@ namespace Snake
                 if (Snake.TryToEat(food.AsRectangle))
                 {
                     Snake.ExtendBody();
-                    food.NewPosition(Snake);
 
-                    Score += 100;
+                    switch (food.Type)
+                    {
+                        case FoodType.Normal:
+                            food.NewPosition(Snake);
+                            Score = ScoreMultiplier;
+                            break;
+                        case FoodType.Gold:
+                            Food.Remove(food);
+                            Score = ScoreMultiplier;
+                            FoodModel.ChangeFoodColor(Food, Brushes.Gold);
+                            DoubleScoreEffect(10);
+                            break;
+                        case FoodType.Special:
+                            Food.Remove(food);
+                            Score = ScoreMultiplier * 2;
+                            SpecialEffect(10);
+                            break;
+                    }
 
                     _scoreTextBlock.Text = Score.ToString();
 
@@ -86,10 +113,11 @@ namespace Snake
                         Food.Add(newFood);
                     }
 
+                    FoodModel.ChanceOtherFoodToAppear(Food, Snake);
+
                     break;
                 }
             }
-            
 
             Update();
         }
@@ -103,54 +131,7 @@ namespace Snake
         {
             IsGameStarted = true;
 
-            DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Speed);
-
-            _scoreTextBlock.Text = "0";
-            _timeTextBlock.Text = "00:00";
-            _area.Background = Settings.Background;
-            _area.Opacity = 1;
-
-            HideAreaTextBlocks();
-
-            Score = 0;
-            Timer = new DateTime();
-
-            Snake = new SnakeModel(Settings.BodyColor, Settings.HeadColor);
-
-            switch (Settings.Difficulty)
-            {
-                case Difficulties.Easy:
-                    Snake.CanTeleport = true;
-                    CanShowWalls = false;
-                    break;
-                case Difficulties.Normal:
-                    Snake.CanTeleport = false;
-                    CanShowWalls = false;
-                    break;
-                case Difficulties.Hard:
-                    Snake.CanTeleport = false;
-                    CanShowWalls = true;
-                    CreateWalls();
-                    FoodModel.Walls = Obstacles;
-                    break;
-                case Difficulties.Python:
-                    Snake.CanTeleport = false;
-                    CanShowWalls = true;
-                    CreateWalls();
-                    FoodModel.Walls = Obstacles;
-                    Snake.Starve = 60;
-                    break;
-            }
-
-            for (int i = Settings.FoodSpawnCount; i > 0; i--)
-            {
-                FoodModel food = new FoodModel();
-                food.NewPosition(Snake);
-
-                Food.Add(food);
-            }
-
-            _pauseTextBlock.Text = "\uf04c";
+            SetDeffaultSettings();
 
             Update();
 
@@ -174,7 +155,6 @@ namespace Snake
             ShowAreaTextBlocks();
 
             CheckResult();
-
             DisplayRecords();
         }
         private void Restart()
@@ -257,9 +237,75 @@ namespace Snake
             }
 
 
-            Timer = Timer.AddMilliseconds(Settings.Speed);
+            Timer = Timer.AddMilliseconds(DispatcherTimer.Interval.Milliseconds);
 
             _timeTextBlock.Text = TimerToString;
+        }
+
+        private void SetDeffaultSettings()
+        {
+            if (FastMoveEffectTimer >= 0) Settings.Speed /= 2;
+            if (SlowMoveEffectTimer >= 0) Settings.Speed *= 2;
+
+            DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Speed);
+
+            DoubleScoreEffectTimer = -1;
+            FastMoveEffectTimer = -1;
+            SlowMoveEffectTimer = -1;
+
+            ScoreMultiplier = 1;
+
+            FoodModel.ChangeFoodColor(Food, Brushes.Red);
+
+            FoodModel.IsGoldenFoodShown = false;
+            FoodModel.IsSpecialFoodShown = false;
+
+            _scoreTextBlock.Text = "0";
+            _timeTextBlock.Text = "00:00";
+            _area.Background = Settings.Background;
+            _area.Opacity = 1;
+
+            HideAreaTextBlocks();
+
+            score = 0;
+            Timer = new DateTime();
+
+            Snake = new SnakeModel(Settings.BodyColor, Settings.HeadColor);
+
+            switch (Settings.Difficulty)
+            {
+                case Difficulties.Easy:
+                    Snake.CanTeleport = true;
+                    CanShowWalls = false;
+                    break;
+                case Difficulties.Normal:
+                    Snake.CanTeleport = false;
+                    CanShowWalls = false;
+                    break;
+                case Difficulties.Hard:
+                    Snake.CanTeleport = false;
+                    CanShowWalls = true;
+                    CreateWalls();
+                    FoodModel.Walls = Obstacles;
+                    break;
+                case Difficulties.Python:
+                    Snake.CanTeleport = false;
+                    CanShowWalls = true;
+                    CreateWalls();
+                    FoodModel.Walls = Obstacles;
+                    Snake.Starve = 60;
+                    break;
+            }
+
+            for (int i = Settings.FoodSpawnCount; i > 0; i--)
+            {
+                FoodModel food = new FoodModel();
+                food.NewPosition(Snake);
+
+                Food.Add(food);
+            }
+
+            _pauseTextBlock.Text = "\uf04c";
         }
 
         private void CreateWalls()
@@ -283,6 +329,76 @@ namespace Snake
             Records = RecordModel.OrderRecords(Records);
 
             _recordsListView.ItemsSource = Records.Take(10);
+        }
+
+        private void HideAreaTextBlocks()
+        {
+            _startTextBlock.Visibility = Visibility.Hidden;
+            _titleTextBlock.Visibility = Visibility.Hidden;
+            _restartTextBlock.Visibility = Visibility.Hidden;
+            _scoreResultTextBlock.Visibility = Visibility.Hidden;
+            _reasonDiedTextBlock.Visibility = Visibility.Hidden;
+        }
+        private void ShowAreaTextBlocks()
+        {
+            _titleTextBlock.Visibility = Visibility.Visible;
+            _restartTextBlock.Visibility = Visibility.Visible;
+            _scoreResultTextBlock.Visibility = Visibility.Visible;
+            _reasonDiedTextBlock.Visibility = Visibility.Visible;
+        }
+
+        private void CheckEffects()
+        {
+            if (DoubleScoreEffectTimer >= 0)
+            {
+                if (DoubleScoreEffectTimer == 0)
+                {
+                    ScoreMultiplier = 1;
+                    FoodModel.IsGoldenFoodShown = false;
+                    FoodModel.ChangeFoodColor(Food, Brushes.Red);
+                }
+                DoubleScoreEffectTimer--;
+            }
+            else if (FastMoveEffectTimer >= 0)
+            {
+                if (FastMoveEffectTimer == 0)
+                {
+                    Settings.Speed /= 2;
+                    DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Speed);
+                    FoodModel.IsSpecialFoodShown = false;
+                }
+                FastMoveEffectTimer--;
+            }
+            else if (SlowMoveEffectTimer >= 0)
+            {
+                if (SlowMoveEffectTimer == 0)
+                {
+                    Settings.Speed *= 2;
+                    DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Speed);
+                    FoodModel.IsSpecialFoodShown = false;
+                }
+                SlowMoveEffectTimer--;
+            }
+        }
+        private void DoubleScoreEffect(byte seconds)
+        {
+            ScoreMultiplier = 2;
+            DoubleScoreEffectTimer = (short)(1000*seconds / Settings.Speed);
+        }
+        private void SpecialEffect(byte seconds)
+        {
+            if (new Random().Next(0, 2) == 1)
+            {
+                Settings.Speed *= 2;
+                FastMoveEffectTimer = (short)(1000 * seconds / Settings.Speed);
+            }
+            else
+            {
+                Settings.Speed /= 2;
+                SlowMoveEffectTimer = (short)(1000 * seconds / Settings.Speed);   
+            }
+
+            DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Speed);
         }
 
         private void WindowKeyDown(object sender, KeyEventArgs e)
@@ -342,25 +458,9 @@ namespace Snake
                 if (e.Key == Key.Space)
                 {
                     if (!IsGameStarted) Start();
-                    else Pause();   
+                    else Pause();
                 }
             }
-        }
-
-        private void HideAreaTextBlocks()
-        {
-            _startTextBlock.Visibility = Visibility.Hidden;
-            _titleTextBlock.Visibility = Visibility.Hidden;
-            _restartTextBlock.Visibility = Visibility.Hidden;
-            _scoreResultTextBlock.Visibility = Visibility.Hidden;
-            _reasonDiedTextBlock.Visibility = Visibility.Hidden;
-        }
-        private void ShowAreaTextBlocks()
-        {
-            _titleTextBlock.Visibility = Visibility.Visible;
-            _restartTextBlock.Visibility = Visibility.Visible;
-            _scoreResultTextBlock.Visibility = Visibility.Visible;
-            _reasonDiedTextBlock.Visibility = Visibility.Visible;
         }
 
         private void OpenDeveloperWindow(object sender, MouseButtonEventArgs e)
@@ -370,6 +470,10 @@ namespace Snake
         private void OpenSettingsWindow(object sender, MouseButtonEventArgs e)
         {
             if (IsPaused || !IsGameStarted) new SettingsWindow().Show();
+        }
+        private void OpenInformationWindow(object sender, MouseButtonEventArgs e)
+        {
+            if (IsPaused || !IsGameStarted) new InformationWindow().Show();
         }
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
