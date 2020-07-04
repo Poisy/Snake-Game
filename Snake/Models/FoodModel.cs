@@ -33,22 +33,11 @@ namespace Snake.Data
             {
                 Position = new Point(Random.Next(0, 500 / Size) * Size, Random.Next(0, 500 / Size) * Size);
 
-                foreach (var bodyPart in snake.GetValue())
-                {
-                    Point pos = new Point(Canvas.GetLeft(bodyPart), Canvas.GetTop(bodyPart));
-
-                    if (pos.X == Position.X && pos.Y == Position.Y) continue;
-                }
+                if (IsInsideSnakeBody(snake)) continue;
 
                 if (MainWindow.CanShowWalls)
                 {
-                    foreach (var wall in Walls)
-                    {
-                        if (Position.X >= wall.Position.X && Position.X < wall.Position.X + wall.Width)
-                        {
-                            if (Position.Y >= wall.Position.Y && Position.Y < wall.Position.Y + wall.Height) continue;
-                        }
-                    }
+                    if (IsInsideWalls()) continue;
                 }
 
                 break;
@@ -56,6 +45,29 @@ namespace Snake.Data
 
             Canvas.SetLeft(AsRectangle, Position.X);
             Canvas.SetTop(AsRectangle, Position.Y);
+        }
+        private bool IsInsideSnakeBody(SnakeModel snake)
+        {
+            foreach (var bodyPart in snake.BodyParts)
+            {
+                Point pos = new Point(bodyPart.CurrentPosition.X, bodyPart.CurrentPosition.Y);
+
+                if (pos.X == Position.X && pos.Y == Position.Y) return true;
+            }
+
+            return false;
+        }
+        private bool IsInsideWalls()
+        {
+            foreach (var wall in Walls)
+            {
+                if (Position.X >= wall.Position.X && Position.X <= wall.Position.X + wall.Width)
+                {
+                    if (Position.Y >= wall.Position.Y && Position.Y <= wall.Position.Y + wall.Height) return true;
+                }
+            }
+
+            return false;
         }
     }
 }

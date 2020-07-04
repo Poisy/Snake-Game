@@ -5,12 +5,13 @@ using Snake.Data;
 using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 
 namespace Snake.Models
 {
     public class SnakeModel
     {
-        class BodyPart
+        public class BodyPart
         {
             private Point currentPosition = new Point(0, 0);
             public Point CurrentPosition 
@@ -60,17 +61,35 @@ namespace Snake.Models
                 }
             }
 
-            public void UpdatePosition(Point position)
+            public void UpdatePosition(Point position, bool didHaveAnimation)
             {
+                double oldPositionX = currentPosition.X;
+                double oldPositionY = currentPosition.Y;
+
                 currentPosition.X += position.X;
                 currentPosition.Y += position.Y;
 
-                AsRectangle.RenderTransform = new TranslateTransform(currentPosition.X, currentPosition.Y);
+                TimeSpan time;
+
+                if (didHaveAnimation) time = new TimeSpan(0, 0, 0, 0, Settings.Speed);
+                else time = new TimeSpan(0, 0, 0, 0, 0);
+
+                TranslateTransform trans = new TranslateTransform();
+
+                DoubleAnimation anim1 = new DoubleAnimation(oldPositionX, currentPosition.X, time);
+                DoubleAnimation anim2 = new DoubleAnimation(oldPositionY, currentPosition.Y, time);
+
+                anim1.EasingFunction = anim1.EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseOut };
+
+                trans.BeginAnimation(TranslateTransform.XProperty, anim1);
+                trans.BeginAnimation(TranslateTransform.YProperty, anim2);
+
+                AsRectangle.RenderTransform = trans;
             }
         }
 
         private LinkedList<SnakeDirections> Directions { get; set; } = new LinkedList<SnakeDirections>();
-        private List<BodyPart> BodyParts { get; set; } = new List<BodyPart>();
+        public List<BodyPart> BodyParts { get; private set; } = new List<BodyPart>();
         public SnakeDirections CurrentDirection { get; set; }
         public int AreaWidth { get; set; }
         public int AreaHight { get; set; }
@@ -191,7 +210,7 @@ namespace Snake.Models
             {
                 if (CanTeleport)
                 {
-                    bodyPart.UpdatePosition(new Point(0, AreaHight - BodyPartSize));
+                    bodyPart.UpdatePosition(new Point(0, AreaHight - BodyPartSize), false);
                     return;
                 }
 
@@ -199,7 +218,7 @@ namespace Snake.Models
                 ReasonDied = DyingReasons.HitTheWall;
             }
 
-            bodyPart.UpdatePosition(new Point(0, -BodyPartSize));
+            bodyPart.UpdatePosition(new Point(0, -BodyPartSize), true);
         }
         private void MoveDown(BodyPart bodyPart)
         {
@@ -207,7 +226,7 @@ namespace Snake.Models
             {
                 if (CanTeleport)
                 {
-                    bodyPart.UpdatePosition(new Point(0, -(AreaHight - BodyPartSize)));
+                    bodyPart.UpdatePosition(new Point(0, -(AreaHight - BodyPartSize)), false);
                     return;
                 }
 
@@ -215,7 +234,7 @@ namespace Snake.Models
                 ReasonDied = DyingReasons.HitTheWall;
             }
 
-            bodyPart.UpdatePosition(new Point(0, BodyPartSize));
+            bodyPart.UpdatePosition(new Point(0, BodyPartSize), true);
         }
         private void MoveLeft(BodyPart bodyPart)
         {
@@ -223,7 +242,7 @@ namespace Snake.Models
             {
                 if (CanTeleport)
                 {
-                    bodyPart.UpdatePosition(new Point(AreaHight - BodyPartSize, 0));
+                    bodyPart.UpdatePosition(new Point(AreaHight - BodyPartSize, 0), false);
                     return;
                 }
 
@@ -231,7 +250,7 @@ namespace Snake.Models
                 ReasonDied = DyingReasons.HitTheWall;
             }
 
-            bodyPart.UpdatePosition(new Point(-BodyPartSize, 0));
+            bodyPart.UpdatePosition(new Point(-BodyPartSize, 0), true);
         }
         private void MoveRight(BodyPart bodyPart)
         {
@@ -239,7 +258,7 @@ namespace Snake.Models
             {
                 if (CanTeleport)
                 {
-                    bodyPart.UpdatePosition(new Point(-(AreaHight - BodyPartSize), 0));
+                    bodyPart.UpdatePosition(new Point(-(AreaHight - BodyPartSize), 0), false);
                     return;
                 }
 
@@ -247,7 +266,7 @@ namespace Snake.Models
                 ReasonDied = DyingReasons.HitTheWall;
             }
 
-            bodyPart.UpdatePosition(new Point(BodyPartSize, 0));
+            bodyPart.UpdatePosition(new Point(BodyPartSize, 0), true);
         }
 
         private BodyPart CreateBodyPart(int x, int y, double size, Brush color)
@@ -264,37 +283,35 @@ namespace Snake.Models
         {
             BodyPart newPart = new BodyPart();
 
-            BodyParts[0].Color = BodyColor;
-
-            newPart.Color = HeadColor;
+            newPart.Color = BodyColor;
             newPart.Size = BodyPartSize;
 
-            switch (CurrentDirection)
+            switch (Directions.Last.Value)
             {
                 case SnakeDirections.Up:
                     newPart.StartPosition = new Point(
-                        BodyParts[0].CurrentPosition.X, 
-                        BodyParts[0].CurrentPosition.Y - BodyPartSize);
+                        BodyParts[BodyParts.Count - 1].CurrentPosition.X, 
+                        BodyParts[BodyParts.Count - 1].CurrentPosition.Y + BodyPartSize);
                     break;
                 case SnakeDirections.Down:
                     newPart.StartPosition = new Point(
-                        BodyParts[0].CurrentPosition.X, 
-                        BodyParts[0].CurrentPosition.Y + BodyPartSize);
+                        BodyParts[BodyParts.Count - 1].CurrentPosition.X, 
+                        BodyParts[BodyParts.Count - 1].CurrentPosition.Y - BodyPartSize);
                     break;
                 case SnakeDirections.Left:
                     newPart.StartPosition = new Point(
-                        BodyParts[0].CurrentPosition.X - BodyPartSize, 
-                        BodyParts[0].CurrentPosition.Y);
+                        BodyParts[BodyParts.Count - 1].CurrentPosition.X + BodyPartSize, 
+                        BodyParts[BodyParts.Count - 1].CurrentPosition.Y);
                     break;
                 case SnakeDirections.Right:
                     newPart.StartPosition = new Point(
-                        BodyParts[0].CurrentPosition.X + BodyPartSize, 
-                        BodyParts[0].CurrentPosition.Y);
+                        BodyParts[BodyParts.Count - 1].CurrentPosition.X - BodyPartSize, 
+                        BodyParts[BodyParts.Count - 1].CurrentPosition.Y);
                     break;
             }
 
-            BodyParts.Insert(0, newPart);
-            Directions.AddFirst(CurrentDirection);
+            BodyParts.Add(newPart);
+            Directions.AddLast(Directions.Last.Value);
         }
 
         public bool TryToEat(Rectangle rect)

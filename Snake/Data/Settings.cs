@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Ink;
 using System.Windows.Media;
 
 namespace Snake.Data
@@ -12,13 +13,31 @@ namespace Snake.Data
         public static bool IsDevModeOn { get; set; } = false;
 
         public static Difficulties Difficulty { get; set; } = Difficulties.Normal;
+        public static char DifficultyToString
+        {
+            get
+            {
+                switch (Difficulty)
+                {
+                    case Difficulties.Easy:
+                        return 'E';
+                    case Difficulties.Normal:
+                        return 'N';
+                    case Difficulties.Hard:
+                        return 'H';
+                    case Difficulties.Python:
+                        return 'P';
+                    default: return ' ';
+                }
+            }
+        }
 
         public static short Speed
         {
             get
             {
                 if (IsDevModeOn) return speed;
-                return 50;
+                return 100;
             }
             set { speed = value; }
         }
@@ -79,7 +98,7 @@ namespace Snake.Data
             set { foodColor = value; }
         }
 
-        private static short speed  = 50;
+        private static short speed  = 100;
         private static Brush headColor = Brushes.White;
         private static Brush bodyColor = Brushes.White;
         private static Brush background = Brushes.Black;

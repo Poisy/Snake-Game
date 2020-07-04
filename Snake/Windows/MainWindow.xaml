@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Snake"
         mc:Ignorable="d"
         Title="Snake" MinHeight="550" MinWidth="900"
-        KeyDown="WindowKeyDown">
+        KeyDown="WindowKeyDown" Closing="WindowClosing">
     <Window.Style>
         <Style TargetType="Window">
             <Setter>
@@ -286,6 +286,40 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
+                <Border Grid.Row="4" CornerRadius="15" Background="#77f0ffff" Margin="10">
+                    <ItemsControl Name="_recordsListView">
+                        <ItemsControl.Style>
+                            <Style TargetType="ItemsControl">
+                                <Setter Property="Padding" Value="10"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="20" Opacity="0.5"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ItemsControl.Style>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ToolTip="{Binding Date}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width=".5*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Place}" Background="#33ffa7a1" TextAlignment="Left"
+                                                   FontSize="23" Padding="10 0 0 0" Foreground="{Binding Foreground}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Score}" Background="#33ffa7a1" TextAlignment="Center"
+                                                   FontSize="17" Foreground="Azure"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Difficulty}" Background="#33ffa7a1"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding Time}" Background="#33ffa7a1" TextAlignment="Center"
+                                                   FontSize="17" Foreground="Azure"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
             </Grid>
         </Border>
     </Grid>

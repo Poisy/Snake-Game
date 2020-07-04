@@ -27,24 +27,30 @@ namespace Snake
         public SnakeModel Snake { get; set; }
         public List<FoodModel> Food { get; set; } = new List<FoodModel>();
         public List<ObstacleModel> Obstacles { get; set; } = new List<ObstacleModel>();
+        public DispatcherTimer DispatcherTimer { get; set; } = new DispatcherTimer();
+        public static bool CanShowWalls { get; set; } = false;
         private bool IsGameStarted { get; set; } = false;
         private bool IsPaused { get; set; } = false;
-        public DispatcherTimer DispatcherTimer { get; set; } = new DispatcherTimer();
+        private List<RecordModel> Records { get; set; } = FileManager.ReadFromRecords();
+        private bool DidAlreadySnakeMoved { get; set; }
         private int Score { get; set; }
         private DateTime Timer { get; set; }
         private string TimerToString => (Timer.Minute > 9 ? Timer.Minute.ToString() : "0" + Timer.Minute.ToString()) +
                 ":" + (Timer.Second > 9 ? Timer.Second.ToString() : "0" + Timer.Second.ToString());
-        public static bool CanShowWalls { get; set; } = false;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            DisplayRecords();
 
             DispatcherTimer.Tick += MainLoop;
         }
 
         private void MainLoop(object sender, EventArgs e)
         {
+            DidAlreadySnakeMoved = false;
+
             Snake.Move();
 
             if (CanShowWalls)
@@ -102,6 +108,7 @@ namespace Snake
             _scoreTextBlock.Text = "0";
             _timeTextBlock.Text = "00:00";
             _area.Background = Settings.Background;
+            _area.Opacity = 1;
 
             HideAreaTextBlocks();
 
@@ -165,6 +172,10 @@ namespace Snake
             _pauseTextBlock.Text = "\uf04b";
 
             ShowAreaTextBlocks();
+
+            CheckResult();
+
+            DisplayRecords();
         }
         private void Restart()
         {
@@ -181,6 +192,9 @@ namespace Snake
             _pauseTextTextBlock.Visibility = Visibility.Hidden;
             _restartTextBlock.Visibility = Visibility.Hidden;
             IsPaused = !IsPaused;
+
+            CheckResult();
+            DisplayRecords();
 
             Start();
         }
@@ -211,6 +225,8 @@ namespace Snake
         private void Exit(object sender, MouseButtonEventArgs e)
         {
             Close();
+
+            FileManager.WriteToRecords(Records);
         }
 
         private void Update()
@@ -255,6 +271,20 @@ namespace Snake
             Obstacles.Add(obstacle2);
         }
 
+        private void CheckResult()
+        {
+            if (Settings.IsDevModeOn) return;
+
+            Records.Add(new RecordModel(Score.ToString(), TimerToString) { Difficulty = Settings.DifficultyToString });
+        }
+
+        private void DisplayRecords()
+        {
+            Records = RecordModel.OrderRecords(Records);
+
+            _recordsListView.ItemsSource = Records.Take(10);
+        }
+
         private void WindowKeyDown(object sender, KeyEventArgs e)
         {
             if (IsGameStarted && !IsPaused)
@@ -262,36 +292,43 @@ namespace Snake
                 switch (e.Key)
                 {
                     case Key.Up:
-                        if (Snake.CurrentDirection != SnakeDirections.Down)
+                        if (Snake.CurrentDirection != SnakeDirections.Down && !DidAlreadySnakeMoved)
                             Snake.CurrentDirection = SnakeDirections.Up;
+                        DidAlreadySnakeMoved = true;
                         break;
                     case Key.Down:
-                        if (Snake.CurrentDirection != SnakeDirections.Up)
+                        if (Snake.CurrentDirection != SnakeDirections.Up && !DidAlreadySnakeMoved)
                             Snake.CurrentDirection = SnakeDirections.Down;
+                        DidAlreadySnakeMoved = true;
                         break;
                     case Key.Left:
-                        if (Snake.CurrentDirection != SnakeDirections.Right)
+                        if (Snake.CurrentDirection != SnakeDirections.Right && !DidAlreadySnakeMoved)
                             Snake.CurrentDirection = SnakeDirections.Left;
                         break;
                     case Key.Right:
-                        if (Snake.CurrentDirection != SnakeDirections.Left)
+                        if (Snake.CurrentDirection != SnakeDirections.Left && !DidAlreadySnakeMoved)
                             Snake.CurrentDirection = SnakeDirections.Right;
+                        DidAlreadySnakeMoved = true;
                         break;
                     case Key.W:
-                        if (Snake.CurrentDirection != SnakeDirections.Down)
+                        if (Snake.CurrentDirection != SnakeDirections.Down && !DidAlreadySnakeMoved)
                             Snake.CurrentDirection = SnakeDirections.Up;
+                        DidAlreadySnakeMoved = true;
                         break;
                     case Key.S:
-                        if (Snake.CurrentDirection != SnakeDirections.Up)
+                        if (Snake.CurrentDirection != SnakeDirections.Up && !DidAlreadySnakeMoved)
                             Snake.CurrentDirection = SnakeDirections.Down;
+                        DidAlreadySnakeMoved = true;
                         break;
                     case Key.A:
-                        if (Snake.CurrentDirection != SnakeDirections.Right)
+                        if (Snake.CurrentDirection != SnakeDirections.Right && !DidAlreadySnakeMoved)
                             Snake.CurrentDirection = SnakeDirections.Left;
+                        DidAlreadySnakeMoved = true;
                         break;
                     case Key.D:
-                        if (Snake.CurrentDirection != SnakeDirections.Left)
+                        if (Snake.CurrentDirection != SnakeDirections.Left && !DidAlreadySnakeMoved)
                             Snake.CurrentDirection = SnakeDirections.Right;
+                        DidAlreadySnakeMoved = true;
                         break;
                     case Key.Space:
                         Pause();
@@ -335,5 +372,9 @@ namespace Snake
             if (IsPaused || !IsGameStarted) new SettingsWindow().Show();
         }
 
+        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            FileManager.WriteToRecords(Records);
+        }
     }
 }
