@@ -7,7 +7,7 @@ namespace Snake.Data
         public static bool IsDevModeOn { get; set; } = false;
 
         public static Difficulties Difficulty { get; set; } = Difficulties.Normal;
-        public static char DifficultyToString
+        public static char DifficultyToChar
         {
             get
             {
@@ -22,6 +22,24 @@ namespace Snake.Data
                     case Difficulties.Python:
                         return 'P';
                     default: return ' ';
+                }
+            }
+        }
+        public static string DifficultyToString
+        {
+            get
+            {
+                switch (Difficulty)
+                {
+                    case Difficulties.Easy:
+                        return "Easy";
+                    case Difficulties.Normal:
+                        return "Normal";
+                    case Difficulties.Hard:
+                        return "Hard";
+                    case Difficulties.Python:
+                        return "Python";
+                    default: return "";
                 }
             }
         }

@@ -24,13 +24,15 @@ namespace Snake
     /// </summary>
     public partial class MainWindow : Window
     {
+        public UserModel User { get; } = new UserModel();
+        private QuestManager QuestManager { get; set; } = new QuestManager();
         public SnakeModel Snake { get; set; }
         public List<FoodModel> Food { get; set; } = new List<FoodModel>();
         public List<ObstacleModel> Obstacles { get; set; } = new List<ObstacleModel>();
         public DispatcherTimer DispatcherTimer { get; set; } = new DispatcherTimer();
         public static bool CanShowWalls { get; set; } = false;
-        private bool IsGameStarted { get; set; } = false;
-        private bool IsPaused { get; set; } = false;
+        public static bool IsGameStarted { get; set; } = false;
+        public static bool IsPaused { get; set; } = false;
         private List<RecordModel> Records { get; set; } = FileManager.ReadFromRecords();
         private bool DidAlreadySnakeMoved { get; set; }
         private int Score
@@ -52,6 +54,7 @@ namespace Snake
             InitializeComponent();
 
             DisplayRecords();
+            UpdateQuest();
 
             DispatcherTimer.Tick += MainLoop;
         }
@@ -89,16 +92,19 @@ namespace Snake
                         case FoodType.Normal:
                             food.NewPosition(Snake);
                             Score = ScoreMultiplier;
+                            QuestManager.TrySaveToXp(User, ScoreMultiplier);
                             break;
                         case FoodType.Gold:
                             Food.Remove(food);
                             Score = ScoreMultiplier;
+                            QuestManager.TrySaveToXp(User, ScoreMultiplier);
                             FoodModel.ChangeFoodColor(Food, Brushes.Gold);
                             DoubleScoreEffect(10);
                             break;
                         case FoodType.Special:
                             Food.Remove(food);
                             Score = ScoreMultiplier * 2;
+                            QuestManager.TrySaveToXp(User, ScoreMultiplier * 2);
                             SpecialEffect(10);
                             break;
                     }
@@ -122,6 +128,27 @@ namespace Snake
             Update();
         }
 
+        public void RefreshGame()
+        {
+            SetDeffaultSettings();
+
+            IsGameStarted = false;
+            IsPaused = false;
+
+            _area.Children.Clear();
+            DispatcherTimer.Stop();
+
+            Snake = new SnakeModel();
+            Food = new List<FoodModel>();
+
+            HideAreaTextBlocks();
+
+            _startTextBlock.Visibility = Visibility.Visible;
+            _titleTextBlock.Visibility = Visibility.Visible;
+
+            _pauseTextTextBlock.Visibility = Visibility.Hidden;
+        }
+
         private void Start(object sender, MouseButtonEventArgs e)
         {
             if (IsGameStarted) Restart();
@@ -132,6 +159,10 @@ namespace Snake
             IsGameStarted = true;
 
             SetDeffaultSettings();
+
+            QuestManager.SaveQuest();
+
+            QuestManager.TryStartNewGame();
 
             Update();
 
@@ -154,6 +185,9 @@ namespace Snake
 
             ShowAreaTextBlocks();
 
+            QuestManager.TryStartNewGame();
+            UpdateQuest();
+
             CheckResult();
             DisplayRecords();
         }
@@ -172,6 +206,12 @@ namespace Snake
             _pauseTextTextBlock.Visibility = Visibility.Hidden;
             _restartTextBlock.Visibility = Visibility.Hidden;
             IsPaused = !IsPaused;
+
+            QuestManager.SaveQuest();
+
+            QuestManager.CheckQuest(User, Score, Timer);
+            QuestManager.Quest.ClearCurrentValue();
+            UpdateQuest();
 
             CheckResult();
             DisplayRecords();
@@ -207,6 +247,7 @@ namespace Snake
             Close();
 
             FileManager.WriteToRecords(Records);
+            User.SaveUserData();
         }
 
         private void Update()
@@ -236,10 +277,27 @@ namespace Snake
                 _area.Children.Add(food.AsRectangle);
             }
 
+            QuestManager.CheckQuest(User, Score, Timer);
+
+            UpdateQuest();
 
             Timer = Timer.AddMilliseconds(DispatcherTimer.Interval.Milliseconds);
 
             _timeTextBlock.Text = TimerToString;
+        }
+        private void UpdateQuest()
+        {
+            _levelTextBlock.Text = "Level " + User.Level.ToString();
+            _xpProgressBar.Value = User.LevelPercentage;
+            _xpProgressBar.ToolTip = new TextBlock() { Text = User.XPToNextLevel.ToString() + " xp to next level" };
+            _xpTextBlock.Text = User.XP.ToString() + " xp";
+
+            if (QuestManager.IsFreeModeOn) return;
+            _questTextBlock.Text = "Quest " + QuestManager.MissionID.ToString();
+            _questTaskTextBlock.Text = $"{QuestManager.Quest.Type} {QuestManager.Quest.Goal} " + (QuestManager.Quest.Type == "Survive" ? "sec" : "pts");
+            _questTaskRemainTextBlock.Text = QuestManager.Quest.Remain.ToString() + (QuestManager.Quest.Type == "Survive" ? " sec" : " pts");
+            _questDifficultyTextBlock.Text = QuestManager.Quest.Difficulty;
+            _questRewardTextBlock.Text = QuestManager.Quest.Reward.ToString() + " xp";
         }
 
         private void SetDeffaultSettings()
@@ -321,7 +379,7 @@ namespace Snake
         {
             if (Settings.IsDevModeOn) return;
 
-            Records.Add(new RecordModel(Score.ToString(), TimerToString) { Difficulty = Settings.DifficultyToString });
+            Records.Add(new RecordModel(Score.ToString(), TimerToString) { Difficulty = Settings.DifficultyToChar });
         }
 
         private void DisplayRecords()
@@ -469,7 +527,7 @@ namespace Snake
         }
         private void OpenSettingsWindow(object sender, MouseButtonEventArgs e)
         {
-            if (IsPaused || !IsGameStarted) new SettingsWindow().Show();
+            if (IsPaused || !IsGameStarted) new SettingsWindow(this).Show();
         }
         private void OpenInformationWindow(object sender, MouseButtonEventArgs e)
         {
@@ -479,6 +537,7 @@ namespace Snake
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             FileManager.WriteToRecords(Records);
+            User.SaveUserData();
         }
     }
 }

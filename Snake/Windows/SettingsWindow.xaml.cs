@@ -10,8 +10,12 @@ namespace Snake.Windows
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        public SettingsWindow()
+        MainWindow MainWindow { get; set; }
+
+        public SettingsWindow(MainWindow window)
         {
+            MainWindow = window;
+
             InitializeComponent();
 
             _difficultyComboBox.SelectedIndex = (int)Settings.Difficulty;
@@ -36,6 +40,8 @@ namespace Snake.Windows
                     Settings.Difficulty = Difficulties.Python;
                     break;
             }
+
+            MainWindow.RefreshGame();
         }
 
         private void WindowKeyDown(object sender, KeyEventArgs e)

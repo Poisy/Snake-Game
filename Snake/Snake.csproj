@@ -82,8 +82,14 @@
     </ApplicationDefinition>
     <Compile Include="Data\FoodType.cs" />
     <Compile Include="Models\FileManager.cs" />
+    <Compile Include="Models\QuestManager.cs" />
+    <Compile Include="Models\QuestModel.cs" />
     <Compile Include="Models\RecordModel.cs" />
     <Compile Include="Models\Security.cs" />
+    <Compile Include="Models\UserModel.cs" />
+    <Compile Include="Windows\DialogWindow.xaml.cs">
+      <DependentUpon>DialogWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\InformationWindow.xaml.cs">
       <DependentUpon>InformationWindow.xaml</DependentUpon>
     </Compile>
@@ -91,6 +97,10 @@
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Windows\DeveloperWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\DialogWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

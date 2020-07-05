@@ -50,7 +50,7 @@
                 <TextBlock Text=" - Easy"  ToolTip="- you can teleport through walls&#x0d;- get 100 points per food"/>
                 <TextBlock Text=" - Normal"  ToolTip="- you can't teleport through walls&#x0d;- get 150 points per food"/>
                 <TextBlock Text=" - Hard"  ToolTip="- you can't teleport through walls&#x0d;- get 200 points per food and&#x0d;- there are bonus walls on the center of the map"/>
-                <TextBlock Text=" - Python"  ToolTip="- you can't teleport through walls&#x0d;- get 200 points per food and&#x0d;- there are bonus walls on the center of the map&#x0d;- dying from starving if you don't eat in 5 secs"/>
+                <TextBlock Text=" - Python"  ToolTip="- you can't teleport through walls&#x0d;- get 250 points per food and&#x0d;- there are bonus walls on the center of the map&#x0d;- dying from starving if you don't eat in 5 secs"/>
             </StackPanel>
         </Expander>
         <!--Food Info-->
@@ -76,21 +76,35 @@
                 <TextBlock TextWrapping="Wrap" Text="In the game there are 3 type of foods, hover on them to see more: "/>
                 <TextBlock Foreground="Red" Text=" - Normal"  ToolTip="- you get 1x points when you eat&#x0d;- Effect: None&#x0d;- 100% chance to spawn when you eat normal food"/>
                 <TextBlock Foreground="Gold" Text=" - Golden"  ToolTip="- you get 2x points per food&#x0d;- Effect: Makes every normal food into a golden one (with no effect) for 10 sec&#x0d;- 5% chance to spawn when you eat normal food"/>
-                <TextBlock Foreground="Pink" Text=" - Special"  ToolTip="- you get 2x points when eat&#x0d;- Effect: Makes you 2x Faster or 2x Slower&#x0d;- 25% chance to spawn when you eat normal food"/>
+                <TextBlock Foreground="Pink" Text=" - Special"  ToolTip="- you get 2x points when eat&#x0d;- Effect: Makes you 2x Faster or 2x Slower for 10 sec&#x0d;- 25% chance to spawn when you eat normal food"/>
             </StackPanel>
         </Expander>
-        <!--Food Options-->
+        <!--Quest Info-->
         <Expander Grid.Column="3" Grid.Row="1">
+            <Expander.Resources>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource DevOptionTextBlockStyle}">
+                    <Setter Property="Margin" Value="0"/>
+                    <Setter Property="FontSize" Value="17"/>
+                </Style>
+            </Expander.Resources>
             <Expander.Style>
                 <Style TargetType="Expander" BasedOn="{StaticResource ExpanderStyle}">
-                    <Setter Property="IsEnabled" Value="False"/>
-                    <Setter Property="Header">
+                    <Setter Property="MaxHeight" Value="250"/>
+                    <Setter>
+                        <Setter.Property>Header</Setter.Property>
                         <Setter.Value>
-                            <Label Content="Missions" FontSize="20"></Label>
+                            <Label Content="Quests" FontSize="20" ></Label>
                         </Setter.Value>
                     </Setter>
                 </Style>
             </Expander.Style>
+            <StackPanel>
+                <TextBlock TextWrapping="Wrap" Text="Quests helps you gain xp and level up. There are 3 types of quests: "/>
+                <TextBlock Text=" - Score"  ToolTip="- you need to gain the given amount of points on the given difficulty&#x0d;without dying"/>
+                <TextBlock Text=" - Survive"  ToolTip="- you need to play without dying for the given amount of time on the given difficulty"/>
+                <TextBlock Text=" - Collect"  ToolTip="- you need to get points on the given difficulty and you can die as much as you want"/>
+                <TextBlock TextWrapping="Wrap" Text="* you can't complete quests while Developer Mode is On"/>
+            </StackPanel>
         </Expander>
     </Grid>
 </Window>

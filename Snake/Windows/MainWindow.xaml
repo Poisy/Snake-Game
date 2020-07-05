@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Snake"
         mc:Ignorable="d"
-        Title="Snake" MinHeight="550" MinWidth="900"
+        Title="Snake" MinHeight="550" MinWidth="900" Height="650" Width="1050"
         KeyDown="WindowKeyDown" Closing="WindowClosing">
     <Window.Style>
         <Style TargetType="Window">
@@ -28,7 +28,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="6*"/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2.5*"/>
         </Grid.ColumnDefinitions>
         <!--Left Panel-->
         <Border Grid.Column="0">
@@ -240,14 +240,18 @@
                 <DropShadowEffect BlurRadius="20" Color="Gray" ShadowDepth="10" Direction="220" Opacity="0.4"/>
             </Border.Effect>
             <Grid Margin="0 20 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="0.7*"/>
+                    <RowDefinition Height="1.2*"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="0.5*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="5.5*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0">
+                <TextBlock Grid.Row="0" Grid.Column="1">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Text" Value="&#xf2f2;"/>
@@ -260,7 +264,7 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <TextBlock Name="_timeTextBlock" Grid.Row="1">
+                <TextBlock Name="_timeTextBlock" Grid.Row="1" Grid.Column="1">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Text" Value="00:00"/>
@@ -272,7 +276,7 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <TextBlock Grid.Row="2">
+                <TextBlock Grid.Row="0" Grid.Column="0">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Text" Value="&#xf005;"/>
@@ -285,7 +289,7 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <TextBlock Name="_scoreTextBlock" Grid.Row="3">
+                <TextBlock Name="_scoreTextBlock" Grid.Row="1" Grid.Column="0">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Text" Value="0"/>
@@ -297,7 +301,50 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <Border Grid.Row="4" CornerRadius="15" Background="#77f0ffff" Margin="10">
+                <Border Grid.Row="2" Grid.RowSpan="2" Grid.ColumnSpan="2" CornerRadius="15" Background="#55ffd9d6" 
+                        BorderBrush="#77f0ffff" BorderThickness="5" Margin="10 0 10 0" Padding="10">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" Opacity="0.2"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="2.5*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Name="_levelTextBlock" Text="Level 0" Grid.Column="0" Grid.Row="0" TextWrapping="Wrap" TextAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Grid.Row="0">
+                            <ProgressBar Name="_xpProgressBar" Foreground="Tomato" Minimum="0" Maximum="100" Value="0" Height="10">
+                            </ProgressBar>
+                            <TextBlock Name="_xpTextBlock" Text="0 xp" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Name="_questTextBlock" Text="Quest 0" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                        <Grid Grid.Column="1" Grid.Row="2" Background="#55fcfcfc" Margin="5 0 0 0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1.5*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Task: " Padding="2"/>
+                            <TextBlock Grid.Column="0" Grid.Row="1" Text="Remain: " Padding="2"/>
+                            <TextBlock Grid.Column="0" Grid.Row="2" Text="Difficulty: " Padding="2"/>
+                            <TextBlock Grid.Column="0" Grid.Row="3" Text="Reward: " Padding="2"/>
+                            <TextBlock Name="_questTaskTextBlock" Text="Collect 10000 pts" Grid.Column="1" Grid.Row="0" Padding="2" TextAlignment="Right"/>
+                            <TextBlock Name="_questTaskRemainTextBlock" Grid.Column="1" Grid.Row="1" Padding="2" TextAlignment="Right"/>
+                            <TextBlock Name="_questDifficultyTextBlock" Grid.Column="1" Grid.Row="2" Padding="2" TextAlignment="Right"/>
+                            <TextBlock Name="_questRewardTextBlock" Grid.Column="1" Grid.Row="3" Padding="2" TextAlignment="Right"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="4" Grid.ColumnSpan="2" CornerRadius="15" Background="#77f0ffff" Margin="10">
                     <ItemsControl Name="_recordsListView">
                         <ItemsControl.Style>
                             <Style TargetType="ItemsControl">
