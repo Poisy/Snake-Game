@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using Snake.Data;
 using Snake.Models;
@@ -22,6 +15,7 @@ namespace Snake
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
     public partial class MainWindow : Window
     {
         public UserModel User { get; } = new UserModel();
@@ -52,6 +46,8 @@ namespace Snake
         public MainWindow()
         {
             InitializeComponent();
+
+            SoundManager.PlayBGM(BackgroundMusic.Menu);
 
             DisplayRecords();
             UpdateQuest();
@@ -85,6 +81,8 @@ namespace Snake
             {
                 if (Snake.TryToEat(food.AsRectangle))
                 {
+                    SoundManager.PlaySound(Soundtrack.Pop);
+
                     Snake.ExtendBody();
 
                     switch (food.Type)
@@ -156,6 +154,9 @@ namespace Snake
         }
         private void Start()
         {
+            SoundManager.PlayBGM(BackgroundMusic.Gameplay);
+            SoundManager.ChangeBGMSpeed(1);
+
             IsGameStarted = true;
 
             SetDeffaultSettings();
@@ -171,6 +172,10 @@ namespace Snake
         private void Stop()
         {
             IsGameStarted = false;
+
+            SoundManager.PlaySound(Soundtrack.GameOver);
+            SoundManager.PlayBGM(BackgroundMusic.Menu);
+            SoundManager.ChangeBGMSpeed(1);
 
             _reasonDiedTextBlock.Text = Snake.ReasonDied;
             _scoreResultTextBlock.Text = $"Time: {TimerToString}       Score: {Score}";
@@ -244,10 +249,10 @@ namespace Snake
         }
         private void Exit(object sender, MouseButtonEventArgs e)
         {
-            Close();
-
             FileManager.WriteToRecords(Records);
             User.SaveUserData();
+
+            Application.Current.Shutdown();
         }
 
         private void Update()
@@ -424,6 +429,9 @@ namespace Snake
                     Settings.Speed /= 2;
                     DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Speed);
                     FoodModel.IsSpecialFoodShown = false;
+
+                    SoundManager.ChangeBGMSpeed(1);
+
                 }
                 FastMoveEffectTimer--;
             }
@@ -434,6 +442,9 @@ namespace Snake
                     Settings.Speed *= 2;
                     DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Speed);
                     FoodModel.IsSpecialFoodShown = false;
+
+                    SoundManager.ChangeBGMSpeed(1);
+
                 }
                 SlowMoveEffectTimer--;
             }
@@ -449,11 +460,16 @@ namespace Snake
             {
                 Settings.Speed *= 2;
                 FastMoveEffectTimer = (short)(1000 * seconds / Settings.Speed);
+
+                SoundManager.ChangeBGMSpeed(0.5);
+
             }
             else
             {
                 Settings.Speed /= 2;
-                SlowMoveEffectTimer = (short)(1000 * seconds / Settings.Speed);   
+                SlowMoveEffectTimer = (short)(1000 * seconds / Settings.Speed);
+
+                SoundManager.ChangeBGMSpeed(2);
             }
 
             DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, Settings.Speed);

@@ -80,12 +80,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\BackgroundMusic.cs" />
     <Compile Include="Data\FoodType.cs" />
+    <Compile Include="Data\Soundtrack.cs" />
     <Compile Include="Models\FileManager.cs" />
     <Compile Include="Models\QuestManager.cs" />
     <Compile Include="Models\QuestModel.cs" />
     <Compile Include="Models\RecordModel.cs" />
     <Compile Include="Models\Security.cs" />
+    <Compile Include="Models\SoundManager.cs" />
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="Windows\DialogWindow.xaml.cs">
       <DependentUpon>DialogWindow.xaml</DependentUpon>
@@ -183,6 +186,23 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="icon_Yw1_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\sounds\bgm.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\sounds\bgm_2.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\sounds\death.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\sounds\eat_food.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\sounds\level_up.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

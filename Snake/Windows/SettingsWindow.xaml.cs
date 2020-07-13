@@ -1,4 +1,5 @@
 ﻿using Snake.Data;
+using Snake.Models;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,6 +20,7 @@ namespace Snake.Windows
             InitializeComponent();
 
             _difficultyComboBox.SelectedIndex = (int)Settings.Difficulty;
+            _volumeSlider.Value = SoundManager.Volume * 10;
         }
 
         private void ComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -50,6 +52,12 @@ namespace Snake.Windows
             {
                 Close();
             }
+        }
+
+        private void VolumeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            SoundManager.Volume = e.NewValue / 10;
+            SoundManager.ChangeBGMSpeed(1);
         }
     }
 }

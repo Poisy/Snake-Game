@@ -49,6 +49,8 @@ namespace Snake.Models
 
                             new DialogWindow(text).ShowDialog();
                         }
+
+                        SoundManager.PlaySound(Soundtrack.LevelUp);
                     }
                 }
             }
